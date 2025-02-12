@@ -1,6 +1,18 @@
-(function() {
-    // CSS styles
-    const styles = `
+(function () {
+  // FAQ responses using markdown syntax for links
+  const faqResponses = {
+    "Quickstart guide":
+      "To get started with Gaia, check out our Quick Start guide: [Click here](https://docs.gaianet.ai/getting-started/quick-start)",
+    "What is Gaia?":
+      "Learn about Gaia and how it works: [Click here](https://docs.gaianet.ai/getting-started/what-is-a-node/)",
+    "What is a Gaia node":
+          "Learn about Gaia nodes and how they work: [Click here](https://docs.gaianet.ai/getting-started/what-is-a-node/)",
+    "Eliza integration": "Explore our Eliza integration: [Click here](https://docs.gaianet.ai/tutorial/eliza/)",
+    "Agent integrations":
+      "Explore our agent integration options: [Click here](https://docs.gaianet.ai/agent-integrations)",
+  };
+
+  const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
       * {
         margin: 0;
@@ -85,13 +97,13 @@
         box-shadow: 0 0 128px 0 rgba(0,0,0,0.1), 0 32px 64px -48px rgba(0,0,0,0.5);
         transition: all 0.1s ease;
     }
-
+  
     body.show-chatbot .chatbot {
         opacity: 1;
         pointer-events: auto;
         transform: scale(1);
     }
-
+  
     .chatbot header {
         padding: 16px 0;
         position: relative;
@@ -100,7 +112,7 @@
         background: #fff;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
+  
     .chatbot header span {
         position: absolute;
         right: 15px;
@@ -151,14 +163,13 @@
         border-radius: 4px;
         margin: 0 10px 7px 0;
     }
-    .chatbox .chat p {
+    .chatbox .chat > p {
         white-space: pre-wrap;
         padding: 12px 16px;
         border-radius: 10px 10px 0 10px;
         max-width: 75%;
         color: #fff;
         font-size: 0.95rem;
-        background: #724ae8;
     }
     .chatbox .chat p.error {
         color: #721c24;
@@ -178,6 +189,7 @@
         height: 55px;
         width: 100%;
         border: none;
+        color: #000000;
         outline: none;
         resize: none;
         max-height: 180px;
@@ -217,7 +229,7 @@
     .chatbox .chat p ul, .chatbox .chat p ol {
         margin-left: 20px;
     }
-    .chatbox .incoming p {
+    .chatbox .incoming  p {
         border-radius: 10px 10px 10px 0;
         background: #f2f2f2;
         color: #000;
@@ -277,22 +289,22 @@
         height: 510px;
         padding: 30px 20px 100px;
     }
-
+  
     .chatbot .chat {
         display: flex;
         list-style: none;
         margin-bottom: 20px;
     }
-
+  
     .chatbot .incoming {
         flex-direction: row;
         align-items: flex-start;
     }
-
+  
     .chatbot .outgoing {
         justify-content: flex-end;
     }
-
+  
     .chatbot .chat .message {
         max-width: 75%;
         padding: 15px;
@@ -300,35 +312,35 @@
         font-size: 0.95rem;
         line-height: 1.5;
     }
-
+  
     .chatbot .incoming .message {
         background: #f2f2f2;
         color: #000;
         border-top-left-radius: 0;
     }
-
+  
     .chatbot .outgoing .message {
         background: #000000;
         color: #fff;
         border-top-right-radius: 0;
     }
-
+  
     .chatbot .chat .message-content {
         width: 100%;
     }
-
+  
     .chatbot .chat .message-content > *:first-child {
         margin-top: 0;
     }
-
+  
     .chatbot .chat .message-content > *:last-child {
         margin-bottom: 0;
     }
-
+  
     .chatbot .chat .message-content p {
         margin: 0 0 10px 0;
     }
-
+  
     .chatbot .incoming span {
         width: 32px;
         height: 32px;
@@ -339,16 +351,16 @@
         line-height: 32px;
         margin-right: 10px;
     }
-
+  
     /* Ensure paragraphs within messages don't have extra margins */
     .chatbot .chat .message p {
         margin: 0 0 10px 0;
     }
-
+  
     .chatbot .chat .message p:last-child {
         margin-bottom: 0;
     }
-
+  
     /* Adjust for mobile devices */
     @media (max-width: 490px) {
         .chatbot .chat .message {
@@ -361,20 +373,20 @@
         margin: 10px 0;
         padding-left: 20px;
     }
-
+  
     .chatbot .chat .message-content li {
         margin-bottom: 5px;
     }
-
+  
     .chatbot .chat .message-content li:last-child {
         margin-bottom: 0;
     }
-
+  
     /* Remove default list-style for unordered lists and add custom bullet */
     .chatbot .chat .message-content ul {
         list-style-type: none;
     }
-
+  
     .chatbot .chat .message-content ul li::before {
         content: "•";
         color: currentColor;
@@ -382,16 +394,16 @@
         width: 1em;
         margin-left: -1em;
     }
-
+  
     /* Ensure proper spacing for paragraphs */
     .chatbot .chat .message-content p {
         margin: 0 0 10px 0;
     }
-
+  
     .chatbot .chat .message-content > *:first-child {
         margin-top: 0;
     }
-
+  
     .chatbot .chat .message-content > *:last-child {
         margin-bottom: 0;
     }
@@ -404,209 +416,313 @@
     }
     `;
 
-    // HTML structure
-    const htmlStructure = `
+  // Updated HTML structure without hardcoded suggested questions
+  const htmlStructure = `
       <button class="chatbot-toggler">
         <span class="material-symbols-outlined">chat</span>
         <span class="material-symbols-outlined">close</span>
       </button>
       <div class="chatbot">
         <header>
-          <h2>${CHATBOT_CONFIG.botTitle}</h2>
-          <p style="font-size: 0.5rem">Powered by <a href="https://www.gaianet.ai target="_blank" rel="noopener noreferrer">Gaia</a></p>
+          <h2>${window.CHATBOT_CONFIG.botTitle}</h2>
           <span class="close-btn material-symbols-outlined">close</span>
         </header>
         <ul class="chatbox">
           <li class="chat incoming">
             <span class="material-symbols-outlined">🤖</span>
-            <p>${CHATBOT_CONFIG.welcomeMessage}</p>
+            <p>${window.CHATBOT_CONFIG.welcomeMessage}</p>
           </li>
-          <li class="chat suggested-questions"></li>
+          <div class="suggested-questions"></div>
         </ul>
         <div class="chat-input">
-          <textarea placeholder="${CHATBOT_CONFIG.placeholderText}" required></textarea>
+          <textarea placeholder="${window.CHATBOT_CONFIG.placeholderText}" required></textarea>
           <span id="send-btn" class="material-symbols-outlined">send</span>
         </div>
       </div>
     `;
-  
-    // Inject CSS
-    const styleElement = document.createElement('style');
-    styleElement.textContent = styles;
-    document.head.appendChild(styleElement);
-  
-    
-  
-    // Load Material Icons
-    const linkElement = document.createElement('link');
-    linkElement.rel = 'stylesheet';
-    linkElement.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0';
-    document.head.appendChild(linkElement);
-  
-    // Load DOMPurify
-    const scriptElement = document.createElement('script');
-    scriptElement.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js';
-    document.head.appendChild(scriptElement);
 
-    const markedscriptElement = document.createElement('script');
-    markedscriptElement.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-    document.head.appendChild(markedscriptElement);
+  function initChatbot() {
+    if (!window.CHATBOT_CONFIG) {
+      console.error("CHATBOT_CONFIG is required but not found");
+      return;
+    }
 
-    // Inject HTML
-    const chatbotElement = document.createElement('div');
-    chatbotElement.id = 'chatbot-container';
-    chatbotElement.innerHTML = htmlStructure;
-    document.body.appendChild(chatbotElement);
+    const chatbotToggler = document.querySelector(".chatbot-toggler");
+    const closeBtn = document.querySelector(".close-btn");
+    const chatbox = document.querySelector(".chatbox");
+    const chatInput = document.querySelector(".chat-input textarea");
+    const sendChatBtn = document.querySelector(".chat-input span");
 
-    // Main chatbot logic
-    function initChatbot() {
-      const chatbotToggler = document.querySelector(".chatbot-toggler");
-      const closeBtn = document.querySelector(".close-btn");
-      const chatbox = document.querySelector(".chatbox");
-      const chatInput = document.querySelector(".chat-input textarea");
-      const sendChatBtn = document.querySelector(".chat-input span");
-      const suggestedQuestionsContainer = document.querySelector(".suggested-questions");
-  
-      let userMessage = null;
-      const inputInitHeight = chatInput.scrollHeight;
-  
-      // API configuration
-      const API_KEY = window.CHATBOT_CONFIG?.apiKey || "";
-      const API_URL = window.CHATBOT_CONFIG?.apiUrl || `https://mantle.us.gaianet.network/v1/chat/completions`;
-  
-      const createChatLi = (message, className) => {
-        const chatLi = document.createElement("li");
-        chatLi.classList.add("chat", `${className}`);
-        let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">🤖</span><p></p>`;
-        chatLi.innerHTML = chatContent;
-        chatLi.querySelector("p").textContent = message;
-        return chatLi;
-      }
-  
-      const generateResponse = async (chatElement) => {
-        const messageElement = chatElement.querySelector("p");
-        //console.log(userMessage);
-        const requestOptions = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            messages: [{ 
-              role: "system", 
-              content: CHATBOT_CONFIG.systemMessage
-            },
-            { 
-              role: "user", 
-              content: userMessage
-            }],
-            max_tokens: CHATBOT_CONFIG.maxResponseTokens,
-            temperature: CHATBOT_CONFIG.temperatureValue
-          }),
-        }
-  
-        try {
-          //console.log("Request Options:", requestOptions);
-          const response = await fetch(API_URL, requestOptions);
-          const data = await response.json();
-          //console.log("API Response:", data);
-  
-          if (!response.ok) throw new Error(data.error?.message || 'Unknown error occurred');
-  
-          let responseMessage = '';
-          if (data.choices && data.choices[0] && data.choices[0].message) {
-            responseMessage = data.choices[0].message.content;
-          } else if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            responseMessage = data.candidates[0].content.parts[0].text;
-          } else {
-            throw new Error('Unexpected response structure');
-          }
-  
-          responseMessage = convertLinksToAnchors(responseMessage);
-          responseMessage = marked.parse(responseMessage);
-          messageElement.innerHTML = DOMPurify.sanitize(responseMessage, {
-                ALLOWED_TAGS: ['br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'code', 'pre', 'a'],
-                ALLOWED_ATTR: ['href', 'target', 'rel']
-          });
-        } catch (error) {
-          console.error("Error:", error);
-          messageElement.classList.add("error");
-          messageElement.textContent = error.message || 'An error occurred while fetching the response';
-        } finally {
-          chatbox.scrollTo(0, chatbox.scrollHeight);
-        }
-      }
-      
-      const loadSuggestedQuestions = () => {
-        // const questions = [
-        //   "What is Mantle?",
-        //   "How do I deploy on Mantle?",
-        //   "What makes Mantle unique?",
-        //   "Explain the transaction process on Mantle"
-        // ];
-        // questions.forEach(addSuggestedQuestion);
-        CHATBOT_CONFIG.suggestedQuestions.forEach(addSuggestedQuestion);
-      }
+    let userMessage = null;
+    const inputInitHeight = chatInput.scrollHeight;
 
-      const handleChat = () => {
-        userMessage = chatInput.value.trim();
-        if (!userMessage) return;
-  
-        chatInput.value = "";
-        chatInput.style.height = `${inputInitHeight}px`;
-  
-        chatbox.appendChild(createChatLi(userMessage, "outgoing"));
-        chatbox.scrollTo(0, chatbox.scrollHeight);
-  
-        setTimeout(() => {
-          const incomingChatLi = createChatLi("Thinking...", "incoming");
-          chatbox.appendChild(incomingChatLi);
-          chatbox.scrollTo(0, chatbox.scrollHeight);
-          generateResponse(incomingChatLi);
-        }, 600);
-      }
-  
-      function convertLinksToAnchors(text) {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, function(url) {
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
-      }
-  
-      chatInput.addEventListener("input", () => {
-        chatInput.style.height = `${inputInitHeight}px`;
-        chatInput.style.height = `${chatInput.scrollHeight}px`;
-      });
-  
-      chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
-          e.preventDefault();
-          handleChat();
-        }
-      });
-      
-      // Modify the addSuggestedQuestion function to handle the transaction process explanation
-      const addSuggestedQuestion = (question) => {
-        const button = document.createElement('button');
-        button.classList.add('suggested-question');
-        button.textContent = question;
-        button.addEventListener('click', () => {
+    // Function to populate suggested questions from config
+    const populateSuggestedQuestions = () => {
+      const container = document.querySelector(".suggested-questions");
+      container.innerHTML = ""; // Clear existing questions
+
+      if (
+        window.CHATBOT_CONFIG.suggestedQuestions &&
+        Array.isArray(window.CHATBOT_CONFIG.suggestedQuestions)
+      ) {
+        window.CHATBOT_CONFIG.suggestedQuestions.forEach((question) => {
+          const button = document.createElement("button");
+          button.classList.add("suggested-question");
+          button.textContent = question;
+          button.addEventListener("click", () => {
             chatInput.value = question;
             handleChat();
+          });
+          container.appendChild(button);
         });
-        suggestedQuestionsContainer.appendChild(button);
+      }
+    };
+
+    const createChatLi = (message, className) => {
+      const chatLi = document.createElement("li");
+      chatLi.classList.add("chat", className);
+      let chatContent =
+        className === "outgoing"
+          ? `<p></p>`
+          : `<span class="material-symbols-outlined">🤖</span><p></p>`;
+      chatLi.innerHTML = chatContent;
+
+      const messageElement = chatLi.querySelector("p");
+      if (message.includes("<a") || message.includes("[")) {
+        const htmlContent = marked.parse(message);
+        messageElement.innerHTML = DOMPurify.sanitize(htmlContent, {
+          ALLOWED_TAGS: [
+            "br",
+            "strong",
+            "em",
+            "u",
+            "ol",
+            "ul",
+            "li",
+            "code",
+            "pre",
+            "a",
+            "p",
+          ],
+          ALLOWED_ATTR: ["href", "target", "rel"],
+          ADD_ATTR: ["target"],
+        });
+
+        const links = messageElement.getElementsByTagName("a");
+        Array.from(links).forEach((link) => {
+          link.setAttribute("target", "_blank");
+          link.setAttribute("rel", "noopener noreferrer");
+        });
+      } else {
+        messageElement.textContent = message;
       }
 
-      // Load suggested questions when the chatbot initializes
-      loadSuggestedQuestions();
+      return chatLi;
+    };
 
-      sendChatBtn.addEventListener("click", handleChat);
-      closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
-      chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
-    }
-  
-    // Initialize chatbot when DOMPurify is loaded
-    if (window.DOMPurify) {
+    const generateResponse = async (chatElement) => {
+      const messageElement = chatElement.querySelector("p");
+
+      // Check if it's a FAQ question first
+      if (faqResponses[userMessage]) {
+        const faqResponse = faqResponses[userMessage];
+        const htmlContent = marked.parse(faqResponse);
+        messageElement.innerHTML = DOMPurify.sanitize(htmlContent, {
+          ALLOWED_TAGS: [
+            "br",
+            "strong",
+            "em",
+            "u",
+            "ol",
+            "ul",
+            "li",
+            "code",
+            "pre",
+            "a",
+            "p",
+          ],
+          ALLOWED_ATTR: ["href", "target", "rel"],
+          ADD_ATTR: ["target"],
+        });
+
+        const links = messageElement.getElementsByTagName("a");
+        Array.from(links).forEach((link) => {
+          link.setAttribute("target", "_blank");
+          link.setAttribute("rel", "noopener noreferrer");
+        });
+
+        chatbox.scrollTo(0, chatbox.scrollHeight);
+        return;
+      }
+
+      // If not a FAQ, proceed with API call
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${window.CHATBOT_CONFIG.apiKey}`,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: window.CHATBOT_CONFIG.systemMessage,
+            },
+            {
+              role: "user",
+              content: userMessage,
+            },
+          ],
+          max_tokens: window.CHATBOT_CONFIG.maxResponseTokens,
+          temperature: window.CHATBOT_CONFIG.temperatureValue,
+        }),
+      };
+
+      try {
+        const response = await fetch(
+          window.CHATBOT_CONFIG.apiUrl,
+          requestOptions
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || "Unknown error occurred");
+        }
+
+        let responseMessage = "";
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          responseMessage = data.choices[0].message.content;
+        } else if (
+          data.candidates &&
+          data.candidates[0] &&
+          data.candidates[0].content
+        ) {
+          responseMessage = data.candidates[0].content.parts[0].text;
+        } else {
+          throw new Error("Unexpected response structure");
+        }
+
+        const htmlContent = marked.parse(responseMessage);
+        messageElement.innerHTML = DOMPurify.sanitize(htmlContent, {
+          ALLOWED_TAGS: [
+            "br",
+            "strong",
+            "em",
+            "u",
+            "ol",
+            "ul",
+            "li",
+            "code",
+            "pre",
+            "a",
+            "p",
+          ],
+          ALLOWED_ATTR: ["href", "target", "rel"],
+          ADD_ATTR: ["target"],
+        });
+
+        const links = messageElement.getElementsByTagName("a");
+        Array.from(links).forEach((link) => {
+          link.setAttribute("target", "_blank");
+          link.setAttribute("rel", "noopener noreferrer");
+        });
+      } catch (error) {
+        console.error("Error:", error);
+        messageElement.classList.add("error");
+        messageElement.textContent =
+          error.message || "An error occurred while fetching the response";
+      } finally {
+        chatbox.scrollTo(0, chatbox.scrollHeight);
+      }
+    };
+
+    const handleChat = () => {
+      userMessage = chatInput.value.trim();
+      if (!userMessage) return;
+
+      chatInput.value = "";
+      chatInput.style.height = `${inputInitHeight}px`;
+
+      chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+      chatbox.scrollTo(0, chatbox.scrollHeight);
+
+      setTimeout(() => {
+        const incomingChatLi = createChatLi("Thinking...", "incoming");
+        chatbox.appendChild(incomingChatLi);
+        chatbox.scrollTo(0, chatbox.scrollHeight);
+        generateResponse(incomingChatLi);
+      }, 600);
+    };
+
+    chatInput.addEventListener("input", () => {
+      chatInput.style.height = `${inputInitHeight}px`;
+      chatInput.style.height = `${chatInput.scrollHeight}px`;
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+        e.preventDefault();
+        handleChat();
+      }
+    });
+
+    sendChatBtn.addEventListener("click", handleChat);
+    closeBtn.addEventListener("click", () =>
+      document.body.classList.remove("show-chatbot")
+    );
+    chatbotToggler.addEventListener("click", () =>
+      document.body.classList.toggle("show-chatbot")
+    );
+
+    // Populate the suggested questions when initializing
+    populateSuggestedQuestions();
+  }
+
+  // Check if CHATBOT_CONFIG exists before proceeding
+  if (!window.CHATBOT_CONFIG) {
+    console.error("CHATBOT_CONFIG is required but not found");
+    return;
+  }
+
+  // Inject CSS
+  const styleElement = document.createElement("style");
+  styleElement.textContent = styles;
+  document.head.appendChild(styleElement);
+
+  // Load Material Icons
+  const linkElement = document.createElement("link");
+  linkElement.rel = "stylesheet";
+  linkElement.href =
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0";
+  document.head.appendChild(linkElement);
+
+  // Load DOMPurify
+  const scriptElement = document.createElement("script");
+  scriptElement.src =
+    "https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js";
+  document.head.appendChild(scriptElement);
+
+  // Load Marked
+  const markedscriptElement = document.createElement("script");
+  markedscriptElement.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
+  document.head.appendChild(markedscriptElement);
+
+  // Inject HTML
+  const chatbotElement = document.createElement("div");
+  chatbotElement.id = "chatbot-container";
+  chatbotElement.innerHTML = htmlStructure;
+  document.body.appendChild(chatbotElement);
+
+  // Initialize chatbot when dependencies are loaded
+  const initWhenDependenciesLoaded = () => {
+    if (window.DOMPurify && window.marked) {
       initChatbot();
-    } else {
-      scriptElement.onload = initChatbot;
     }
+  };
+
+  scriptElement.onload = initWhenDependenciesLoaded;
+  markedscriptElement.onload = initWhenDependenciesLoaded;
+
+  // Make initChatbot available globally
+  window.initChatbot = initChatbot;
 })();
